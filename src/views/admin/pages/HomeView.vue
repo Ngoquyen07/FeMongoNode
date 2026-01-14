@@ -3,6 +3,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useAuthActions } from '@/composables/useAuthActions'
 import { adminApi } from '@/api/admin/adminApi'
+import type {User} from "@/interfaces/user.interface.ts";
 
 const userStore = useUserStore()
 const { logout } = useAuthActions()
@@ -54,6 +55,48 @@ const handleRegister = async () => {
     if (err.response?.data?.errors) {
       regErrors.value = err.response.data.errors
     }
+  }
+}
+
+/// assign employee to manager .
+const showAssignModal = ref(false)
+
+const selectedEmployee = ref<User | null>(null)
+
+const assignForm = reactive({
+  managerId: ''
+})
+
+const assignErrors = ref<{ managerId?: string[] }>({})
+const assignLoading = ref(false)
+
+const openAssignModal = (employee: User) => {
+  selectedEmployee.value = employee
+  assignForm.managerId = ''
+  assignErrors.value = {}
+  showAssignModal.value = true
+}
+
+const handleAssign = async () => {
+  assignErrors.value = {}
+
+  if (!assignForm.managerId) {
+    assignErrors.value.managerId = ['Please select a manager']
+    return
+  }
+
+  assignLoading.value = true
+  try {
+    await adminApi.assignEmployees(
+        assignForm.managerId ,[selectedEmployee.value!._id] )
+    showAssignModal.value = false
+    await fetchData()
+  } catch (err: any) {
+    if (err.response?.data?.errors) {
+      assignErrors.value = err.response.data.errors
+    }
+  } finally {
+    assignLoading.value = false
   }
 }
 
@@ -131,6 +174,8 @@ onMounted(fetchData)
                 v-for="orphan in orphanEmployees"
                 :key="orphan._id"
                 class="list-group-item d-flex justify-content-between align-items-center"
+                style="cursor: pointer"
+                @click="openAssignModal(orphan)"
             >
               <div>
                 <div class="fw-bold">{{ orphan.username }}</div>
@@ -145,6 +190,66 @@ onMounted(fetchData)
         </div>
       </div>
     </div>
+    <div v-if="showAssignModal" class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title">Assign Employee</h5>
+            <button class="btn-close" @click="showAssignModal = false"></button>
+          </div>
+
+          <div class="modal-body">
+            <!-- Employee info -->
+            <div class="mb-3">
+              <div class="fw-bold">{{ selectedEmployee?.username }}</div>
+              <div class="text-muted small">{{ selectedEmployee?.email }}</div>
+            </div>
+
+            <!-- Manager select -->
+            <div class="mb-3">
+              <label class="form-label">Select Manager</label>
+              <select
+                  v-model="assignForm.managerId"
+                  class="form-select"
+                  :class="{ 'is-invalid': assignErrors.managerId }"
+              >
+                <option value="">-- Choose manager --</option>
+                <option
+                    v-for="mgr in managers"
+                    :key="mgr._id"
+                    :value="mgr._id"
+                >
+                  {{ mgr.username }}
+                </option>
+              </select>
+              <div class="invalid-feedback">
+                {{ assignErrors.managerId?.[0] }}
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-secondary" @click="showAssignModal = false">
+              Cancel
+            </button>
+
+            <button
+                class="btn btn-primary"
+                :disabled="!assignForm.managerId || assignLoading"
+                @click="handleAssign"
+            >
+              Assign
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- backdrop -->
+    <div v-if="showAssignModal" class="modal-backdrop fade show"></div>
+
 
     <!-- REGISTER MODAL -->
     <div class="modal fade" id="registerModal" tabindex="-1">
