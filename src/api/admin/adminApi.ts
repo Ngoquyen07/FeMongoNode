@@ -6,6 +6,9 @@ export const adminApi = {
     async getAllStaffs() {
         return await axiosClient.get('/api/admin/staffs/getAll');
     },
+    async getOverViewInfo(){
+        return await axiosClient.get('/api/admin/staffs/overview')
+    },
     async updateUserRole(userId: string, roleName: string) {
         return await axiosClient.put('/api/admin/staffs/update_role', { userId, roleName });
     },
@@ -17,6 +20,9 @@ export const adminApi = {
     },
     async getManagers() {
         return await axiosClient.get('/api/admin/staffs/managers');
+    },
+    async getEmployees() {
+        return await axiosClient.get('/api/admin/staffs/employees');
     },
     async deleteStaff(userId: string) {
         return await axiosClient.delete('/api/admin/staffs/delete_user', { data: { userId } });

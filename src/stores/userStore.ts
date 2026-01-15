@@ -5,15 +5,19 @@ import type { User } from '@/interfaces/user.interface'
 export const useUserStore = defineStore('user', () => {
   const user = ref<User | null>(null);
 
+  // @ts-ignore
   const role = computed(() => user.value.role)
   const isAuthenticated = computed(() => !!user.value) ;
   const isAdmin = computed(() => {
+    // @ts-ignore
     return user.value.role === 'admin'
   }) ;
   const isManager = computed(() => {
+    // @ts-ignore
     return user.value.role === 'manager'
   })
   const isEmployee = computed(() => {
+    // @ts-ignore
     return user.value.role === 'employee'
   })
   async function setUserValue(data: Partial<User>) {

@@ -12,7 +12,6 @@ export function useAuthActions() {
     const login = async (data: any) => {
         try {
             const res = await auth.login(data)
-            console.log("res", res)
             const user = res.data.user
             const token = res.data.accessToken
             await authStore.setToken(token)
@@ -40,7 +39,7 @@ export function useAuthActions() {
         try {
             await auth.logout()
         } catch (error) {
-            console.log(error)
+
         } finally {
             await userStore.clearUser()
             await authStore.clearToken()
