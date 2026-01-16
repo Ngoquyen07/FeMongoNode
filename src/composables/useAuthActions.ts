@@ -2,8 +2,6 @@ import { auth } from "@/api/auth/auth"
 import { useUserStore } from "@/stores/userStore"
 import { useAuthStore } from "@/stores/authStore"
 import { useRouter } from "vue-router"
-import axiosClient from "@/api/auth/axios.ts";
-import router from "@/router";
 
 export function useAuthActions() {
     const userStore = useUserStore()

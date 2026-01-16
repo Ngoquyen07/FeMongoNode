@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { adminApi } from '@/api/admin/adminApi'
 import type { User } from '@/interfaces/user.interface'
+import SuccessToast from "@/components/toasts/SuccessToast.vue";
 
 const props = defineProps<{
   employee: User
@@ -11,7 +12,10 @@ const emit = defineEmits<{
   (e: 'close'): void
   (e: 'updated'): void
 }>()
-
+const toastRef = ref<{
+  show: (message: string, type?: "success" | "danger", duration?: number) => void
+  hide: () => void
+} | null>(null)
 const managers = ref<User[]>([])
 const managerId = ref('')
 const loading = ref(false)
@@ -26,8 +30,12 @@ const handleAssign = async () => {
   loading.value = true
   try {
     await adminApi.assignEmployees(managerId.value, [props.employee._id])
-    emit('updated')
-    emit('close')
+    toastRef.value?.show("Assign successfully.", "success");
+    setTimeout(()=>{
+      emit('updated')
+      emit('close')
+    },800)
+
   } finally {
     loading.value = false
   }
@@ -35,6 +43,7 @@ const handleAssign = async () => {
 </script>
 
 <template>
+  <SuccessToast ref="toastRef" />
   <div class="modal fade show d-block">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">

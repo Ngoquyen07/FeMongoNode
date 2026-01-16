@@ -5,7 +5,7 @@ import type { User } from '@/interfaces/user.interface'
 import SuccessToast from "@/components/toasts/SuccessToast.vue";
 
 const props = defineProps<{
-  manager: any
+  manager: User
 }>()
 
 const emit = defineEmits<{

@@ -4,7 +4,7 @@ import PromoteEmployeeModal from '../modals/PromoteEmployeeModal.vue'
 import { adminApi } from '@/api/admin/adminApi'
 import type { User } from '@/interfaces/user.interface'
 
-const employees = ref<any[]>([])
+const employees = ref<User[]>([])
 const selected = ref<User | null>(null)
 const isLoading = ref(false)
 

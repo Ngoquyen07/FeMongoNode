@@ -280,17 +280,4 @@ onMounted(fetchManagers)
   color: #94a3b8;
   font-style: italic;
 }
-
-/* Vue Animations */
-.slide-fade-enter-active {
-  transition: all 0.5s ease-out;
-}
-.slide-fade-leave-active {
-  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
-}
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateY(-10px);
-  opacity: 0;
-}
 </style>

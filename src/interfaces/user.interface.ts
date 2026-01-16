@@ -5,10 +5,9 @@ export interface User {
   id: string
   username: string
   email: string
-  role: IRole | string
-  manager?: User | string | null
+  role: IRole
+  manager?: User  | null
   employees?: User[]
   createdAt: string
   updatedAt: string
-  __v?: number
 }

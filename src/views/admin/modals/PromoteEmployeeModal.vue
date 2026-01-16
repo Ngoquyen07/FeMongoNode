@@ -2,9 +2,10 @@
 import { ref } from 'vue'
 import { adminApi } from '@/api/admin/adminApi'
 import SuccessToast from "@/components/toasts/SuccessToast.vue";
+import type {User} from "@/interfaces/user.interface.ts";
 
 const props = defineProps<{
-  employee: any
+  employee: User
 }>()
 
 const emit = defineEmits<{

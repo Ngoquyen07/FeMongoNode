@@ -21,13 +21,10 @@ const fetchOverview = async () => {
     overview.value = res.data.data
   } catch (error) {
     console.error("Could not fetch overview data", error)
-    // Xử lý lỗi ở đây (ví dụ: hiển thị toast lỗi)
   } finally {
     isLoading.value = false
   }
 }
-
-
 onMounted(fetchOverview)
 </script>
 

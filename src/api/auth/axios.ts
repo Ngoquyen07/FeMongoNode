@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores/authStore.ts'
 import {useUserStore} from "@/stores/userStore.ts";
+import {useAuthActions} from "@/composables/useAuthActions.ts";
 const axiosClient = axios.create({
   baseURL: 'http://127.0.0.1:8000',
   withCredentials: true
@@ -23,7 +24,6 @@ axiosClient.interceptors.response.use(
     const originalRequest = error.config
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
-
       if (isRefreshing) {
         return new Promise((resolve) => {
           queue.push((token: string) => {
@@ -35,7 +35,6 @@ axiosClient.interceptors.response.use(
       isRefreshing = true
       try {
         const res = await axiosClient.post('/refreshToken')
-        console.log(res)
         const newToken = res.data.accessToken
         await authStore.setToken(newToken)
         queue.forEach((cb) => cb(newToken))
@@ -43,9 +42,7 @@ axiosClient.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newToken}`
         return axiosClient(originalRequest)
       } catch(error) {
-        await authStore.clearToken()
-        await useUserStore().clearUser()
-        window.location.href = '/login'
+        await useAuthActions().logout()
         return Promise.reject(error)
       } finally {
         isRefreshing = false

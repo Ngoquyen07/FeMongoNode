@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useForm } from 'vee-validate'
+import { ref, reactive } from 'vue'
 import { adminApi } from '@/api/admin/adminApi'
-import { staffValidationSchema } from '@/schemas/staff.schema'
 import SuccessToast from "@/components/toasts/SuccessToast.vue";
 
 const emit = defineEmits<{
@@ -14,87 +12,64 @@ const toastRef = ref<{
   show: (message: string, type?: "success" | "danger", duration?: number) => void
   hide: () => void
 } | null>(null)
+
+
 const loading = ref(false)
 
-// Khởi tạo VeeValidate
-const { handleSubmit, errors, setErrors, resetForm, defineField } = useForm({
-  validationSchema: staffValidationSchema,
-  initialValues: {
-    role: 'employee'
-  }
-});
+const form = reactive({
+  username: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  role: 'employee'
+})
 
-//  Liên kết các field (v-model & props)
-const [username, usernameProps] = defineField('username',{
-  validateOnModelUpdate: false,
-  validateOnBlur: false,
-  validateOnChange: false,
-});
-const [email, emailProps] = defineField('email',{
-  validateOnModelUpdate: false,
-  validateOnBlur: false,
-  validateOnChange: false,
-});
-const [password, passwordProps] = defineField('password',{
-  validateOnModelUpdate: false,
-  validateOnBlur: false,
-  validateOnChange: false,
-});
-const [confirmPassword, confirmPasswordProps] = defineField('confirmPassword');
-const [role] = defineField('role');
+const errors = ref<Record<string, string[]>>({})
 
-const clearErrorsWithTimeout = (ms = 1000) => {
-  setTimeout(() => {
-    setErrors({
-      username: undefined,
-      email: undefined,
-      password: undefined,
-      confirmPassword: undefined,
-    })
-  }, ms)
+const resetForm = () => {
+  form.username = ''
+  form.email = ''
+  form.password = ''
+  form.confirmPassword = ''
+  form.role = 'employee'
+  errors.value = {}
 }
 
-// 3. Xử lý Submit
-const handleCreate = handleSubmit(
-    // TH1: Frontend Hợp lệ -> Gọi API
-    async (values) => {
-      loading.value = true
-      try {
-        await adminApi.register(values)
-        toastRef.value?.show("Created staff successfully.", "success");
-        setTimeout(() => {
-          emit('created')
-          emit('close')
-        }, 1000)
-      } catch (err: any) {
-        // Bắt lỗi của BE
-        const beErrors = err.response?.data?.errors;
-        if (beErrors) {
-          const formattedErrors: Record<string, string> = {};
-          for (const key in beErrors) {
-            formattedErrors[key] = Array.isArray(beErrors[key]) ? beErrors[key][0] : beErrors[key];
-          }
-          // Hiển thị lỗi từ BE
-          setErrors(formattedErrors);
-          // Clear lỗi
-          clearErrorsWithTimeout(3000);
-        }
-      } finally {
-        loading.value = false
-      }
-    },
-    ({ errors }) => {
-      clearErrorsWithTimeout(1000);
-    }
-)
-</script>
+const handleCreate = async () => {
+  errors.value = {}
+  loading.value = true
+  try {
+    await adminApi.register(form)
+    toastRef.value?.show("Created staff successfully.", "success");
+    resetForm()
+    finishAction()
 
+  } catch (err: any) {
+    if (err.response?.data?.errors) {
+      errors.value = err.response.data.errors
+    }
+    setTimeout(() => {
+      errors.value = {}
+    },1000)
+
+  } finally {
+    loading.value = false
+  }
+}
+const finishAction = () => {
+  setTimeout(() => {
+    emit('created')
+    emit('close')
+  }, 1000)
+}
+</script>
 <template>
   <SuccessToast ref="toastRef" />
 
   <div class="modal fade show d-block" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content border-0 shadow-2xl animate-fade-in">
+
         <div class="modal-header bg-white p-4 border-bottom shadow-sm">
           <div class="d-flex align-items-center">
             <div class="icon-box rounded-3 me-3" style="background-color: #e0f2fe;">
@@ -109,19 +84,20 @@ const handleCreate = handleSubmit(
         </div>
 
         <div class="modal-body p-4 bg-light-subtle">
-          <form @submit.prevent="handleCreate" class="row g-4">
+          <div class="row g-4">
 
             <div class="col-md-6">
               <label class="form-label fw-semibold required">Username</label>
               <div class="input-group">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-person"></i></span>
                 <input
-                    v-model="username"
-                    v-bind="usernameProps"
+                    v-model="form.username"
                     class="form-control border-start-0 ps-0"
                     :class="{ 'is-invalid': errors.username }"
                 />
-                <div class="invalid-feedback" v-if="errors.username">{{ errors.username }}</div>
+                <div class="invalid-feedback d-block" v-if="errors.username">
+                  {{ errors.username[0] }}
+                </div>
               </div>
             </div>
 
@@ -130,12 +106,14 @@ const handleCreate = handleSubmit(
               <div class="input-group">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-envelope"></i></span>
                 <input
-                    v-model="email"
-                    v-bind="emailProps"
+                    v-model="form.email"
+                    type="text"
                     class="form-control border-start-0 ps-0"
                     :class="{ 'is-invalid': errors.email }"
                 />
-                <div class="invalid-feedback" v-if="errors.email">{{ errors.email }}</div>
+                <div class="invalid-feedback d-block" v-if="errors.email">
+                  {{ errors.email[0] }}
+                </div>
               </div>
             </div>
 
@@ -145,12 +123,13 @@ const handleCreate = handleSubmit(
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-shield-lock"></i></span>
                 <input
                     type="password"
-                    v-model="password"
-                    v-bind="passwordProps"
+                    v-model="form.password"
                     class="form-control border-start-0 ps-0"
                     :class="{ 'is-invalid': errors.password }"
                 />
-                <div class="invalid-feedback" v-if="errors.password">{{ errors.password }}</div>
+                <div class="invalid-feedback d-block" v-if="errors.password">
+                  {{ errors.password[0] }}
+                </div>
               </div>
             </div>
 
@@ -160,27 +139,28 @@ const handleCreate = handleSubmit(
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-shield-check"></i></span>
                 <input
                     type="password"
-                    v-model="confirmPassword"
-                    v-bind="confirmPasswordProps"
+                    v-model="form.confirmPassword"
                     class="form-control border-start-0 ps-0"
                     :class="{ 'is-invalid': errors.confirmPassword }"
                 />
-                <div class="invalid-feedback" v-if="errors.confirmPassword">{{ errors.confirmPassword }}</div>
+                <div class="invalid-feedback d-block" v-if="errors.confirmPassword">
+                  {{ errors.confirmPassword[0] }}
+                </div>
               </div>
             </div>
 
             <div class="col-md-12">
               <label class="form-label fw-semibold">User Role</label>
               <div class="role-selector d-flex gap-3">
-                <div class="form-check card p-3 flex-fill border-1 shadow-sm clickable" :class="{'active-role': role === 'employee'}">
-                  <input class="form-check-input" type="radio" value="employee" v-model="role" id="roleEmp">
+                <div class="form-check card p-3 flex-fill border-1 shadow-sm clickable" :class="{'active-role': form.role === 'employee'}">
+                  <input class="form-check-input" type="radio" value="employee" v-model="form.role" id="roleEmp">
                   <label class="form-check-label w-100" for="roleEmp">
                     <span class="d-block fw-bold">Employee</span>
                     <small class="text-muted">Standard access to system features.</small>
                   </label>
                 </div>
-                <div class="form-check card p-3 flex-fill border-1 shadow-sm clickable" :class="{'active-role': role === 'manager'}">
-                  <input class="form-check-input" type="radio" value="manager" v-model="role" id="roleMgr">
+                <div class="form-check card p-3 flex-fill border-1 shadow-sm clickable" :class="{'active-role': form.role === 'manager'}">
+                  <input class="form-check-input" type="radio" value="manager" v-model="form.role" id="roleMgr">
                   <label class="form-check-label w-100" for="roleMgr">
                     <span class="d-block fw-bold">Manager</span>
                     <small class="text-muted">Full access to manage teams and data.</small>
@@ -188,7 +168,8 @@ const handleCreate = handleSubmit(
                 </div>
               </div>
             </div>
-          </form>
+
+          </div>
         </div>
 
         <div class="modal-footer bg-light p-3">
@@ -205,9 +186,11 @@ const handleCreate = handleSubmit(
             {{ loading ? 'Creating...' : 'Create Staff' }}
           </button>
         </div>
+
       </div>
     </div>
   </div>
+
   <div class="modal-backdrop fade show"></div>
 </template>
 
@@ -360,17 +343,7 @@ const handleCreate = handleSubmit(
   background-color: #0d6efd;
   border-color: #0d6efd;
 }
-/* Thêm vào phần style */
-.invalid-feedback {
-  transition: opacity 0.5s ease;
-  display: block; /* Ép luôn hiển thị để transition hoạt động */
-  min-height: 18px; /* Giữ khoảng trống để tránh giật khung */
-}
 
-/* Nếu errors rỗng thì ẩn đi bằng opacity */
-.invalid-feedback:empty {
-  opacity: 0;
-}
 .form-check-label {
   cursor: pointer;
 }
