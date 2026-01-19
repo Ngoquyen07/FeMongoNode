@@ -17,7 +17,7 @@ const fetchManagers = async () => {
     const response = await adminApi.getManagers()
     managers.value = response.data.data
   } catch (error) {
-    console.error("Error: ", error)
+
   } finally {
     isLoading.value = false
   }

@@ -41,7 +41,11 @@ const [password, passwordProps] = defineField('password',{
   validateOnChange: false,
 });
 const [confirmPassword, confirmPasswordProps] = defineField('confirmPassword');
-const [role] = defineField('role');
+const [role] = defineField('role' , {
+  validateOnModelUpdate: false,
+  validateOnBlur: false,
+  validateOnChange: false,
+});
 
 const clearErrorsWithTimeout = (ms = 1000) => {
   setTimeout(() => {
@@ -84,6 +88,7 @@ const handleCreate = handleSubmit(
       }
     },
     ({ errors }) => {
+
       clearErrorsWithTimeout(1000);
     }
 )

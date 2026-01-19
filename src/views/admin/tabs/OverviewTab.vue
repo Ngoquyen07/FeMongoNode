@@ -20,7 +20,7 @@ const fetchOverview = async () => {
     const res = await adminApi.getOverViewInfo()
     overview.value = res.data.data
   } catch (error) {
-    console.error("Could not fetch overview data", error)
+
   } finally {
     isLoading.value = false
   }

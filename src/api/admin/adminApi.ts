@@ -3,9 +3,6 @@ export const adminApi = {
    async register(data: any) {
         return await axiosClient.post('/api/admin/register', data);
     },
-    async getAllStaffs() {
-        return await axiosClient.get('/api/admin/staffs/getAll');
-    },
     async getOverViewInfo(){
         return await axiosClient.get('/api/admin/staffs/overview')
     },

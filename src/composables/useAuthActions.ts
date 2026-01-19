@@ -36,12 +36,11 @@ export function useAuthActions() {
     const logout = async () => {
         try {
             await auth.logout()
-        } catch (error) {
-
-        } finally {
             await userStore.clearUser()
             await authStore.clearToken()
-            await router.push('/login')
+            await router.push({ name: 'login' })
+        } catch (error) {
+
         }
     }
     return {

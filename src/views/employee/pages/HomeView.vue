@@ -8,10 +8,10 @@ const employee = ref<User | null>(null);
 
 async function loadEmployee() {
   try {
-    const res = await employeeApi.getEmloyeeData();
+    const res = await employeeApi.getEmployeeData();
     employee.value = res.data.data;
   } catch (error) {
-    console.error("Error loading employee data:", error);
+
   }
 }
 

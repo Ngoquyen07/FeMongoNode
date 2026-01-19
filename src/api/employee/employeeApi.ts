@@ -1,6 +1,6 @@
 import axiosClient from '@/api/auth/axios.ts'
 export const employeeApi = {
-    async getEmloyeeData(){
+    async getEmployeeData(){
         return await axiosClient.get('/api/employee/me')
     }
 }

@@ -1,11 +1,11 @@
-import type { IRole } from '@/interfaces/role.interface.ts'
+import type { Role } from '@/interfaces/role.interface.ts'
 
 export interface User {
   _id: string
   id: string
   username: string
   email: string
-  role: IRole
+  role: Role
   manager?: User  | null
   employees?: User[]
   createdAt: string

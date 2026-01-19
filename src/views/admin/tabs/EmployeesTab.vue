@@ -13,9 +13,8 @@ const loadEmployees = async () => {
   try {
     const res = await adminApi.getEmployees()
     employees.value = res.data.data
-    console.log(res.data.data)
   } catch (err) {
-    console.error("Error loading employees:", err)
+
   } finally {
     isLoading.value = false
   }

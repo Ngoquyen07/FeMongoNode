@@ -15,7 +15,7 @@ async function loadEmployees() {
     const res = await adminApi.getOrphanEmployees()
     employees.value = res.data.data
   } catch (err) {
-    console.error("Failed to load unassigned employees:", err)
+
   } finally {
     isLoading.value = false
   }

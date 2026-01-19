@@ -12,7 +12,7 @@ const loadInfo = async () => {
     const res = await managerApi.getManagerData()
     manager.value = res.data.data
   } catch (err) {
-    console.error("Failed to load manager data:", err)
+
   }
 }
 onMounted(() => {
