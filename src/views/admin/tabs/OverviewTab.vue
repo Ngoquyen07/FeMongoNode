@@ -13,7 +13,6 @@ const emit = defineEmits<{
   (e: 'change-tab', tab: 'managers' | 'employees' | 'unassigned'): void
 }>()
 const showCreateModal = ref(false)
-
 const fetchOverview = async () => {
   isLoading.value = true
   try {

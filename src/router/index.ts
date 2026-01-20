@@ -50,6 +50,8 @@ const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   const userStore = useUserStore()
   const authStore = useAuthStore()
+  console.log("is Logged : ", authStore.isLoggedIn)
+  console.log("is auth ",userStore.isAuthenticated)
   if(!authStore.isLoggedIn || !userStore.isAuthenticated) {
       if (to.name === 'login') {
         return next()
@@ -64,6 +66,7 @@ router.beforeEach(async (to, _from, next) => {
   }
   if (to.name === 'login' || to.path === '/') {
     const target = homeRoute()
+    console.log('target', target)
     if (to.name !== target) {
       return next({ name: target })
     }

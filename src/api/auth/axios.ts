@@ -2,6 +2,7 @@ import axios from 'axios'
 import { useAuthStore } from '@/stores/authStore.ts'
 import {useAuthActions} from "@/composables/useAuthActions.ts";
 import router from "@/router";
+import {auth} from "@/api/auth/auth.ts";
 const axiosClient = axios.create({
   baseURL: 'http://127.0.0.1:8000',
   withCredentials: true
@@ -34,7 +35,7 @@ axiosClient.interceptors.response.use(
       }
       isRefreshing = true
       try {
-        const res = await axiosClient.post('/refreshToken')
+        const res = await auth.refresh_token()
         const newToken = res.data.accessToken
         await authStore.setToken(newToken)
         queue.forEach((cb) => cb(newToken))

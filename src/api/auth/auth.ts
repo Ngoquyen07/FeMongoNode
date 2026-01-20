@@ -5,5 +5,9 @@ export const auth = {
   },
   async logout () {
     return await axiosClient.post('/logout')
+  },
+  async refresh_token(){
+    return await axiosClient.post('/refreshToken')
   }
+
 }
