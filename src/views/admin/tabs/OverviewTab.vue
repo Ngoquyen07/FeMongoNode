@@ -2,6 +2,9 @@
 import { ref, onMounted } from 'vue'
 import { adminApi } from '@/api/admin/adminApi'
 import CreateEmployeeModal from '../modals/CreateEmployeeModal.vue'
+import {useRouter} from "vue-router";
+const router = useRouter()
+
 const isLoading = ref(true)
 const overview = ref({
   totalStaff: 0,
@@ -9,9 +12,9 @@ const overview = ref({
   totalEmployees: 0,
   totalOrphans: 0
 })
-const emit = defineEmits<{
-  (e: 'change-tab', tab: 'managers' | 'employees' | 'unassigned'): void
-}>()
+const changeTab = (nextTab : string) => {
+  router.push({ name: `admin.${nextTab}` })
+}
 const showCreateModal = ref(false)
 const fetchOverview = async () => {
   isLoading.value = true
@@ -61,7 +64,7 @@ onMounted(fetchOverview)
 
     <div class="col-md-3">
       <div class="card shadow overview-card bg-gradient-blue text-white h-100 clickable"
-           @click="emit('change-tab', 'managers')">
+           @click="changeTab('managers')">
         <div class="card-body p-4 position-relative overflow-hidden d-flex flex-column justify-content-between">
           <div class="position-relative z-2">
             <div class="text-white-50 small text-uppercase fw-semibold ls-1 mb-2">Managers</div>
@@ -78,7 +81,7 @@ onMounted(fetchOverview)
 
     <div class="col-md-3">
       <div class="card shadow overview-card bg-gradient-teal text-white h-100 clickable"
-           @click="emit('change-tab', 'employees')">
+           @click="changeTab('employees')">
         <div class="card-body p-4 position-relative overflow-hidden d-flex flex-column justify-content-between">
           <div class="position-relative z-2">
             <div class="text-white-50 small text-uppercase fw-semibold ls-1 mb-2">Employees</div>
@@ -95,7 +98,7 @@ onMounted(fetchOverview)
 
     <div class="col-md-3">
       <div class="card shadow overview-card bg-gradient-orange text-white h-100 clickable"
-           @click="emit('change-tab', 'unassigned')">
+           @click="changeTab('unassigned')">
         <div class="card-body p-4 position-relative overflow-hidden d-flex flex-column justify-content-between">
           <div class="position-relative z-2">
             <div class="text-white-50 small text-uppercase fw-semibold ls-1 mb-2">Unassigned</div>

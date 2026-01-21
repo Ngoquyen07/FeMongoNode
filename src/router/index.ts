@@ -7,6 +7,10 @@ import NotFound from '@/views/errorNotFound/404.vue'
 import {useAuthStore} from '@/stores/authStore'
 import {useUserStore} from '@/stores/userStore'
 import Profile from "@/views/admin/pages/Profile.vue";
+import OverviewTab from "@/views/admin/tabs/OverviewTab.vue";
+import ManagersTab from "@/views/admin/tabs/ManagersTab.vue";
+import EmployeesTab from "@/views/admin/tabs/EmployeesTab.vue";
+import UnassignedTab from "@/views/admin/tabs/UnassignedTab.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -25,10 +29,16 @@ const router = createRouter({
     },
     {
       path: '/admin/home',
-      name: 'admin.home',
       component: AdminHomeView,
-      meta: { role: 'admin' },
+      children: [
+        { path: '', redirect: { name: 'admin.overview' } },
+        { path: 'overview', name: 'admin.overview', component: OverviewTab },
+        { path: 'managers', name: 'admin.managers', component: ManagersTab },
+        { path: 'employees', name: 'admin.employees', component: EmployeesTab },
+        { path: 'unassigned', name: 'admin.unassigned', component: UnassignedTab }
+      ]
     },
+
     {
       path: '/admin/profile',
       name: 'admin.profile',

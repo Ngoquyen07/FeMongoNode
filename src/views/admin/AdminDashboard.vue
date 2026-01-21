@@ -53,59 +53,51 @@ const goToProfile = () =>{
       </button>
     </div>
 
-    <!-- ===== TABS ===== -->
     <ul class="nav nav-tabs mb-4">
       <li class="nav-item">
-        <button
+        <RouterLink
             class="nav-link"
-            :class="{ active: activeTab === 'overview' }"
-            @click="activeTab = 'overview'"
+            :class="{ active: $route.name === 'admin.overview' }"
+            :to="{ name: 'admin.overview' }"
         >
           <i class="bi bi-speedometer2 me-1"></i>
           Overview
-        </button>
+        </RouterLink>
       </li>
 
       <li class="nav-item">
-        <button
+        <RouterLink
             class="nav-link"
-            :class="{ active: activeTab === 'managers' }"
-            @click="activeTab = 'managers'"
+            :class="{ active: $route.name === 'admin.managers' }"
+            :to="{ name: 'admin.managers' }"
         >
-          <i class="bi bi-person-badge me-1"></i>
           Managers
-        </button>
+        </RouterLink>
       </li>
 
       <li class="nav-item">
-        <button
+        <RouterLink
             class="nav-link"
-            :class="{ active: activeTab === 'employees' }"
-            @click="activeTab = 'employees'"
+            :class="{ active: $route.name === 'admin.employees' }"
+            :to="{ name: 'admin.employees' }"
         >
-          <i class="bi bi-people me-1"></i>
           Employees
-        </button>
+        </RouterLink>
       </li>
 
       <li class="nav-item">
-        <button
+        <RouterLink
             class="nav-link"
-            :class="{ active: activeTab === 'unassigned' }"
-            @click="activeTab = 'unassigned'"
+            :class="{ active: $route.name === 'admin.unassigned' }"
+            :to="{ name: 'admin.unassigned' }"
         >
-          <i class="bi bi-person-x me-1"></i>
           Unassigned
-        </button>
+        </RouterLink>
       </li>
     </ul>
-
     <!-- ===== CONTENT ===== -->
     <section class="card shadow-sm border-0 p-4">
-      <OverviewTab v-if="activeTab === 'overview'" @change-tab="handleChangeTab" />
-      <ManagersTab v-if="activeTab === 'managers'" />
-      <EmployeesTab v-if="activeTab === 'employees'" />
-      <UnassignedTab v-if="activeTab === 'unassigned'" />
+      <RouterView />
     </section>
 
   </div>
