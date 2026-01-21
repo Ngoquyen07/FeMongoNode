@@ -1,33 +1,63 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import {ref, onMounted, watch} from 'vue'
 import { adminApi } from '@/api/admin/adminApi'
 import ManagerSettingsModal from '../modals/ManagerSettingsModal.vue'
 import type { User } from '@/interfaces/user.interface'
+import {useRoute, useRouter} from "vue-router";
 
 // --- State ---
 const managers = ref<User[]>([])
 const expanded = ref<string | null>(null)
 const selectedManager = ref<User | null>(null)
 const isLoading = ref(false)
-
+const pagination = ref({
+  currentPage: 1,
+  totalPages: 1
+})
+const totalManagers = ref(0)
+const route = useRoute()
+const router = useRouter()
 // --- Methods ---
-const fetchManagers = async () => {
+const fetchManagers = async (page: number) => {
   isLoading.value = true
   try {
-    const response = await adminApi.getManagers()
-    managers.value = response.data.data
+    // API gọi với query string: ?page=x&limit=10
+    const res = await adminApi.getManagers(page, 2)
+    totalManagers.value = res.data.pagination.totalItems
+    managers.value = res.data.data
+    pagination.value = res.data.pagination
   } catch (error) {
-
+    console.error(error)
   } finally {
     isLoading.value = false
   }
 }
-
+watch(
+    () => route.query.page,
+    (newPage) => {
+      const page = Number(newPage) || 1
+      fetchManagers(page)
+    }
+)
 const toggle = (id: string) => {
   expanded.value = expanded.value === id ? null : id
 }
 
-onMounted(fetchManagers)
+// Khi component mount, lấy trang từ URL và gọi API
+onMounted(() => {
+  const initialPage = Number(route.query.page) || 1
+  fetchManagers(initialPage)
+})
+
+// Hàm thay đổi trang (đẩy lên URL)
+const changePage = (page: number) => {
+  if (page < 1 || page > pagination.value.totalPages) return
+
+  router.push({
+    name: 'admin.managers', // Đảm bảo đúng name trong router
+    query: { ...route.query, page: page }
+  })
+}
 </script>
 
 <template>
@@ -35,7 +65,7 @@ onMounted(fetchManagers)
     <div class="container-fluid px-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold text-dark mb-0">Manager</h4>
-        <span class="badge bg-primary-soft text-primary">Total : {{ managers.length }}</span>
+        <span class="badge bg-primary-soft text-primary">Total : {{ totalManagers  }}</span>
       </div>
 
       <div v-if="isLoading" class="text-center py-5">
@@ -104,15 +134,31 @@ onMounted(fetchManagers)
             </div>
           </Transition>
         </div>
+        <nav v-if="pagination.totalPages > 1" class="pagination-fixed">
+          <ul class="pagination justify-content-center mb-0 ">
+            <li class="page-item" :class="{ disabled: pagination.currentPage === 1 }">
+              <button class="page-link" @click="changePage(pagination.currentPage - 1)"><<</button>
+            </li>
+
+            <li v-for="p in pagination.totalPages" :key="p" class="page-item" :class="{ active: p === pagination.currentPage }">
+              <button class="page-link" @click="changePage(p)">{{ p }}</button>
+            </li>
+
+            <li class="page-item" :class="{ disabled: pagination.currentPage === pagination.totalPages }">
+              <button class="page-link" @click="changePage(pagination.currentPage + 1)">>></button>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
+
 
   <ManagerSettingsModal
       v-if="selectedManager"
       :manager="selectedManager"
       @close="selectedManager = null"
-      @updated="fetchManagers"
+      @updated="fetchManagers( 1)"
   />
 </template>
 
@@ -280,4 +326,14 @@ onMounted(fetchManagers)
   color: #94a3b8;
   font-style: italic;
 }
+.pagination-fixed {
+  position: fixed;
+  bottom: 16px;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+}
+
 </style>

@@ -15,8 +15,13 @@ export const adminApi = {
     async assignEmployees(managerId: string, employeeIds: string[]) {
         return await axiosClient.put('/api/admin/staffs/assign_employees_to_manager', { managerId, employeeIds });
     },
-    async getManagers() {
-        return await axiosClient.get('/api/admin/staffs/managers');
+    async getManagers(page = 1, limit = 3) {
+        return await axiosClient.get('/api/admin/staffs/managers', {
+            params: {
+                page: page,
+                limit: limit
+            }
+        });
     },
     async getEmployees() {
         return await axiosClient.get('/api/admin/staffs/employees');
