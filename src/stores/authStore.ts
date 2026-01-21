@@ -14,15 +14,29 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken.value = null
   }
   async function refreshTokenFromInit() {
-    try{
+    try {
       const res = await auth.refresh_token()
       accessToken.value = res.data.accessToken
-      await router.push({
-        name: `${useUserStore().role}.home`
-    })
-    }
-    catch(error){
-      await router.push('/')
+
+      // 1. Lấy thông tin route hiện tại
+      const currentRoute = router.currentRoute.value
+
+      // 2. Kiểm tra xem có tham số 'redirect' trên URL không
+      const redirectTo = currentRoute.query.redirect as string
+      console.log("Pre :",redirectTo)
+      if (redirectTo) {
+        // Nếu có trang cũ, quay lại trang đó
+        await router.push(redirectTo)
+      } else {
+        // Nếu không có (ví dụ vào thẳng trang chủ), thì mới về home theo role
+        const userStore = useUserStore()
+        await router.push({name: `${userStore.role}.home`})
+      }
+    } catch (error) {
+      // Nếu refresh thất bại (hết hạn hoàn toàn), đẩy về login
+      if (router.currentRoute.value.name !== 'login') {
+        await router.push('/login')
+      }
     }
   }
   return {

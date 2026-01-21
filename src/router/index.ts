@@ -6,6 +6,7 @@ import LoginView from '@/views/auth/LoginView.vue'
 import NotFound from '@/views/errorNotFound/404.vue'
 import {useAuthStore} from '@/stores/authStore'
 import {useUserStore} from '@/stores/userStore'
+import Profile from "@/views/admin/pages/Profile.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -26,6 +27,12 @@ const router = createRouter({
       path: '/admin/home',
       name: 'admin.home',
       component: AdminHomeView,
+      meta: { role: 'admin' },
+    },
+    {
+      path: '/admin/profile',
+      name: 'admin.profile',
+      component: Profile,
       meta: { role: 'admin' },
     },
     {
@@ -56,7 +63,10 @@ router.beforeEach(async (to, _from, next) => {
       if (to.name === 'login') {
         return next()
       }
-      return next({ name: 'login' })
+    return next({
+      name: 'login',
+      query: { redirect: to.fullPath }
+    })
   }
   const role = userStore.role ? userStore.role : undefined
   const homeRoute = () => {

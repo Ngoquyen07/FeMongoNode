@@ -6,6 +6,7 @@ import OverviewTab from './tabs/OverviewTab.vue'
 import ManagersTab from './tabs/ManagersTab.vue'
 import EmployeesTab from './tabs/EmployeesTab.vue'
 import UnassignedTab from './tabs/UnassignedTab.vue'
+import router from "@/router";
 
 const { logout } = useAuthActions()
 
@@ -13,6 +14,11 @@ type TabKey = 'overview' | 'managers' | 'employees' | 'unassigned'
 const activeTab = ref<TabKey>('overview')
 const handleChangeTab = (tab: TabKey) => {
   activeTab.value = tab
+}
+const goToProfile = () =>{
+  router.push({
+    name: 'admin.profile',
+  })
 }
 </script>
 <template>
@@ -36,7 +42,16 @@ const handleChangeTab = (tab: TabKey) => {
         <i class="bi bi-box-arrow-right me-2"></i>
         Logout
       </button>
+
     </header>
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+      <button
+          class="btn btn-info"
+          @click="goToProfile"
+      >
+        Profile
+      </button>
+    </div>
 
     <!-- ===== TABS ===== -->
     <ul class="nav nav-tabs mb-4">
